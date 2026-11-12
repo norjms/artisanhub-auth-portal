@@ -144,8 +144,7 @@ NEW_WORDS = (
     "Signing in to {{name}}.",
     "Protected by",
     "You do not have access",
-    "Your sign-in works, but it is not allowed to open {{app}}. Ask the hub's owner to give you a role that "
-    "includes it.",
+    "Your sign-in works, but it is not allowed to open {{app}}. Ask the hub's owner to give you access.",
     "this page",
     "Back to the hub",
 )

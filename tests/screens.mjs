@@ -227,6 +227,25 @@ for (const [width, height] of SIZES) {
     }
     await context.close();
 }
+// "No access": names what was opened and says to ask the hub's owner for access (OrcaSlicer in the browser is
+// given per person, not by a role).
+{
+    const label = "no-access wording";
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { height: 1080, width: 1920 } });
+    const page = await context.newPage();
+    try {
+        await signIn(page, "maker", `${AUTH}/`);
+        await page.goto(`${AUTH}/denied?app=OrcaSlicer`);
+        await page.locator("#denied-stage").waitFor({ timeout: 20000 });
+        const text = (await page.locator("#denied-stage .ahi-subtitle").innerText()).trim();
+        check(label, text === "Your sign-in works, but it is not allowed to open OrcaSlicer. Ask the hub's owner to give you access.",
+            `the page says: ${text}`);
+        console.log(`${label}: ${text}`);
+    } catch (err) {
+        failures.push(`${label}: ${err.message.split("\n")[0]}`);
+    }
+    await context.close();
+}
 await browser.close();
 
 if (failures.length) {

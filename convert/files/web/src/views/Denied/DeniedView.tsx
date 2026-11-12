@@ -35,7 +35,7 @@ const DeniedView = function () {
                 <h1 className="ahi-title">{translate("You do not have access")}</h1>
                 <p className="ahi-subtitle">
                     {translate(
-                        "Your sign-in works, but it is not allowed to open {{app}}. Ask the hub's owner to give you a role that includes it.",
+                        "Your sign-in works, but it is not allowed to open {{app}}. Ask the hub's owner to give you access.",
                         { app: target },
                     )}
                 </p>
