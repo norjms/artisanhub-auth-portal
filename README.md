@@ -33,7 +33,7 @@ It is configured exactly like Authelia. Two optional extras:
 | Setting | Effect |
 |---|---|
 | `server.asset_path` with `locales/en/install.json` holding `{"name": "..."}` | The footer says "Signing in to *name*". Without it, the footer names the address people are on. |
-| `authentication_backend.password_reset.custom_url` | "Forgot your password?" opens that address, and Authelia's own reset stays off. Without it (and with `password_reset.disable: true`) the page says to ask the hub's owner for a new link. |
+| `authentication_backend.password_reset.custom_url` (with `disable: false`) | "Forgot your password?" opens that address in the same tab, for example the hub's own reset page, `https://<hub>/account/password`. Authelia registers none of its own reset endpoints when a custom address is set. Without it (and with `password_reset.disable: true`) the page says to ask the hub's owner for a new link. |
 
 The proxy sends someone Authelia refuses (403) to `/denied?app=<name>` under Authelia's path, for example with
 Caddy's `forward_auth`:
@@ -52,6 +52,7 @@ tests/prepare.sh                              # fetch the pinned releases into w
 python3 -m unittest discover -s tests -v      # the conversion and its failure cases
 python3 tests/check_tree.py HEAD              # what the repository may contain, how its commits are made
 tests/screens.sh <image> <folder>             # every page, both sizes: no scroll, fonts, contrast
+RESET_URL=https://hub.ahi.test/account/password tests/screens.sh <image> <folder>   # the same, with a reset address
 ```
 
 ## Licence

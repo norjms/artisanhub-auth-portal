@@ -16,6 +16,8 @@ const SIZES = [
 const WORST_GROUND = [0x3f, 0x56, 0x6a];
 
 const failures = [];
+// Set when Authelia's password reset points at the hub's reset page (password_reset.custom_url).
+const RESET_URL = process.env.RESET_URL || "";
 
 async function signIn(page, user, target) {
     await page.goto(target);
@@ -196,6 +198,34 @@ for (const pageSpec of PAGES) {
         }
         await context.close();
     }
+}
+// "Forgot your password?": with a reset address, Authelia's link opens it in the same tab and the owner line is not
+// shown; without one, only the owner line is.
+for (const [width, height] of SIZES) {
+    const label = `forgot-password ${width}x${height}`;
+    const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { height, width } });
+    const page = await context.newPage();
+    try {
+        await page.goto(`${AUTH}/`);
+        await page.locator("#first-factor-stage").waitFor({ timeout: 20000 });
+        const link = page.locator("#reset-password-button");
+        const help = page.locator("#ahi-password-help");
+        if (RESET_URL) {
+            check(label, (await link.innerText()).trim() === "Forgot your password?", "the link is not worded Forgot your password?");
+            check(label, (await help.count()) === 0, "the owner line shows next to the reset link");
+            await link.click();
+            await page.waitForURL(RESET_URL, { timeout: 10000 });
+            check(label, context.pages().length === 1, "the reset page opened in a new tab");
+        } else {
+            check(label, (await link.count()) === 0, "a reset link shows with the reset off");
+            check(label, (await help.innerText()).trim() === "Forgot your password? Ask the hub's owner for a new link.",
+                "the owner line is missing");
+        }
+        console.log(`${label}: ${RESET_URL ? "opens " + RESET_URL : "asks the hub's owner"}`);
+    } catch (err) {
+        failures.push(`${label}: ${err.message.split("\n")[0]}`);
+    }
+    await context.close();
 }
 await browser.close();
 

@@ -3,6 +3,11 @@
 # the card fully in view, the bundled fonts in use, text contrast at least 4.5:1 (3:1 for large text).
 #
 #   tests/screens.sh <image> <output folder>
+#   RESET_URL=https://hub.ahi.test/account/password tests/screens.sh <image> <output folder>
+#
+# With RESET_URL, Authelia's password reset points at that address (password_reset.custom_url), as an ArtisanHub
+# installation sets it: the sign-in page must show "Forgot your password?" opening it in the same tab. Without it,
+# the reset is off and the page must show the line saying to ask the hub's owner.
 #
 # Runs a throwaway Authelia from the image behind Caddy (as an installation serves it, under /authelia of the
 # hub's name), and Playwright in a container on the same network. Everything it starts is labelled and removed.
@@ -34,11 +39,15 @@ jwks="$($docker run --rm --entrypoint sh "$image" -c \
   'cd /tmp && authelia crypto pair rsa generate --bits 2048 > /dev/null && cat private.pem')"
 hash="$($docker run --rm --entrypoint authelia "$image" crypto hash generate argon2 --password test-password-1 | sed 's/^Digest: //')"
 RESET="$(rand)" SESSION="$(rand)" STORAGE="$(rand)" HMAC="$(rand)" JWKS="$(printf '%s\n' "$jwks" | sed 's/^/          /')" \
-  python3 - "$here/stack/configuration.yml" "$work/config/configuration.yml" <<'PY'
+  RESET_URL="${RESET_URL:-}" python3 - "$here/stack/configuration.yml" "$work/config/configuration.yml" <<'PY'
 import os, sys
 text = open(sys.argv[1]).read()
 for key in ("RESET", "SESSION", "STORAGE", "HMAC", "JWKS"):
     text = text.replace(f"@{key}@", os.environ[key])
+if os.environ["RESET_URL"]:
+    off = "  password_reset:\n    disable: true\n"
+    assert text.count(off) == 1, "configuration.yml: password_reset block moved"
+    text = text.replace(off, f"  password_reset:\n    disable: false\n    custom_url: \"{os.environ['RESET_URL']}\"\n")
 open(sys.argv[2], "w").write(text)
 PY
 cat > "$work/config/users.yml" <<USERS
@@ -69,5 +78,5 @@ $docker exec "$run-authelia" wget -qO- http://127.0.0.1:9091/authelia/api/health
   || { $docker logs "$run-authelia" | tail -30; exit 1; }
 
 $docker run --name "$run-browser" --label "$label" --network "$run" --ipc=host \
-  -v "$here:/tests:ro" -v "$(cd "$out" && pwd):/out" -w /tests -e HOME=/tmp \
+  -v "$here:/tests:ro" -v "$(cd "$out" && pwd):/out" -w /tests -e HOME=/tmp -e RESET_URL="${RESET_URL:-}" \
   "$playwright_image" sh -c 'cp -r /tests /tmp/t && cd /tmp/t && npm init -y > /dev/null && npm install --silent --no-audit --no-fund playwright@1.65.0 > /dev/null && node screens.mjs /out'

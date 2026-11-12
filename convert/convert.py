@@ -16,7 +16,8 @@ image behaves exactly as the release it is built from. The same steps run for ev
 3. Copy. The sign-in form: labels without asterisks, "Keep me signed in" as a toggle, and, with Authelia's own
    password reset off, a line saying who gives a new password link. With a reset address configured
    (authentication_backend.password_reset.custom_url), Authelia's own link to it stays, worded "Forgot your
-   password?".
+   password?", and opens the address in the same tab (ArtisanHub's hub page, /account/password, links back to
+   the sign-in).
 4. No access. A page at /denied, where the proxy sends someone signed in whom Authelia refused (403).
 
 Every exact edit names text that must appear a set number of times, and every selector the stylesheet reaches
@@ -273,6 +274,9 @@ def sign_in_form(root: Path) -> None:
         lambda m: m.group(1) + help_line + m.group(2))
     sub(root, rel, r'(<div className=")-my-2 flex w-full flex-row justify-end(">\s*<button\s+id="reset-password-button")',
         r"\1flex w-full flex-row justify-center\2")
+    # The reset address is the hub's own page, which links back here: open it in this tab, not a new one.
+    edit(root, rel, "window.open(props.resetPasswordCustomURL);",
+         "window.location.assign(props.resetPasswordCustomURL);")
     edit(root, rel, 'className="cursor-pointer py-[13.5px] text-base text-primary underline-offset-4 hover:underline"',
          'className="cursor-pointer text-xs text-primary underline-offset-4 hover:underline"')
 

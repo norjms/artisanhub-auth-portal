@@ -71,6 +71,11 @@ class Convert(unittest.TestCase):
         self.assertIn("<Switch", form)
         self.assertNotIn("<Checkbox", form)
         self.assertIn('id="ahi-password-help"', form)
+        # With a reset address the link opens it in this tab; the owner line is only what shows without one.
+        self.assertIn("window.location.assign(props.resetPasswordCustomURL);", form)
+        self.assertNotIn("window.open(", form)
+        branch = form[form.index("{props.resetPassword ? ("):]
+        self.assertLess(branch.index('id="reset-password-button"'), branch.index('id="ahi-password-help"'))
         self.assertIn('path="/denied"', (web / "App.tsx").read_text())
 
     def test_converting_twice_stops(self) -> None:
