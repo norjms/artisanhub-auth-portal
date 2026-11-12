@@ -1,0 +1,64 @@
+# A throwaway Authelia for rendering the portal's pages (tests/screens.sh). Secrets are filled in at run time.
+theme: auto
+server:
+  address: "tcp://:9091/authelia"
+  asset_path: /config/assets
+log:
+  level: info
+identity_validation:
+  reset_password:
+    jwt_secret: "@RESET@"
+authentication_backend:
+  password_reset:
+    disable: true
+  password_change:
+    disable: true
+  file:
+    path: /config/users.yml
+access_control:
+  default_policy: deny
+  rules:
+    - domain: hub.ahi.test
+      resources: ["^/second([/?].*)?$"]
+      policy: two_factor
+    - domain: hub.ahi.test
+      resources: ["^/farm([/?].*)?$"]
+      subject: ["group:farm"]
+      policy: one_factor
+session:
+  secret: "@SESSION@"
+  name: test_session
+  cookies:
+    - domain: hub.ahi.test
+      authelia_url: "https://hub.ahi.test/authelia"
+storage:
+  encryption_key: "@STORAGE@"
+  local:
+    path: /config/db.sqlite3
+notifier:
+  filesystem:
+    filename: /config/notifications.txt
+totp:
+  issuer: Artisan Prints
+identity_providers:
+  oidc:
+    hmac_secret: "@HMAC@"
+    jwks:
+      - key_id: test
+        algorithm: RS256
+        use: sig
+        key: |
+@JWKS@
+    clients:
+      - client_id: shop
+        client_name: Artisan Prints shop
+        public: true
+        authorization_policy: one_factor
+        consent_mode: explicit
+        require_pkce: true
+        pkce_challenge_method: S256
+        redirect_uris: ["https://hub.ahi.test/cb"]
+        scopes: [openid, profile, email, groups]
+        grant_types: [authorization_code]
+        response_types: [code]
+        token_endpoint_auth_method: none

@@ -1,0 +1,13 @@
+artisanhub-auth-portal
+
+This product includes Authelia (https://www.authelia.com), copyright the Authelia authors, licensed under the
+Apache License, Version 2.0 (see LICENSE). The Authelia name is a trademark of its owners and is used here only
+to say what the product is built on.
+
+Modified by James Norman, 2026: the web portal of each Authelia release is converted for ArtisanHub by
+convert/convert.py (its look, its page frame and some of its English wording; a page for people who are signed
+in but not allowed to open something). Authelia's server is not changed.
+
+The bundled fonts (Manrope, Sora and JetBrains Mono, from the artisanhub-ui release named in upstream.env) are
+licensed under the SIL Open Font License, Version 1.1; their licences are in the image
+under /app/artisanhub-auth-portal/fonts/.

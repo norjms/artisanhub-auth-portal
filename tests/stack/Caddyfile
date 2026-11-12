@@ -1,0 +1,27 @@
+{
+	local_certs
+	skip_install_trust
+	admin off
+}
+
+hub.ahi.test {
+	tls internal
+	handle /authelia* {
+		reverse_proxy authelia:9091
+	}
+	@guarded path /second /second/* /farm /farm/*
+	handle @guarded {
+		forward_auth authelia:9091 {
+			uri /authelia/api/authz/forward-auth
+			copy_headers Remote-User
+			@denied status 403
+			handle_response @denied {
+				redir * /authelia/denied?app=ArtisanHub%20Farm 302
+			}
+		}
+		respond "signed in"
+	}
+	handle {
+		respond "hub"
+	}
+}

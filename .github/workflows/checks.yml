@@ -1,0 +1,28 @@
+# The conversion against the pinned releases, its failure cases, and the repository's own rules.
+# Images are built by the maintainer, never here.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Files and commits
+        run: python3 tests/check_tree.py HEAD
+      - name: Fetch the pinned releases
+        run: tests/prepare.sh
+      - name: Conversion tests
+        run: python3 -m unittest discover -s tests -v

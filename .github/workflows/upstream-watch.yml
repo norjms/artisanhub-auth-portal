@@ -1,0 +1,79 @@
+# Watches Authelia for a new release (never a pre-release, a draft, a branch or a nightly). When one is out, it
+# runs the conversion against it and opens a pull request moving upstream.env to it. If the conversion no longer
+# applies, the pull request says which step failed, so convert/convert.py can be fixed on its branch.
+# Images are built by the maintainer from the merged upstream.env, never here.
+name: upstream-watch
+
+on:
+  schedule:
+    - cron: "41 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Latest release
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . ./upstream.env
+          tag="$(gh api repos/authelia/authelia/releases/latest --jq .tag_name)"
+          echo "current=$AUTHELIA_VERSION latest=$tag"
+          if [ "$tag" = "$AUTHELIA_VERSION" ]; then echo "new=" >> "$GITHUB_OUTPUT"; exit 0; fi
+          sha="$(gh api "repos/authelia/authelia/commits/$tag" --jq .sha)"
+          version="${tag#v}"
+          digest="$(docker buildx imagetools inspect "authelia/authelia:$version" --format '{{json .Manifest}}' | jq -r .digest)"
+          echo "new=$tag" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "image=authelia/authelia:$version@$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Convert it
+        id: convert
+        if: steps.latest.outputs.new != ''
+        continue-on-error: true
+        env:
+          TAG: ${{ steps.latest.outputs.new }}
+          SHA: ${{ steps.latest.outputs.sha }}
+        run: |
+          sed -i "s/^AUTHELIA_VERSION=.*/AUTHELIA_VERSION=$TAG/; s/^AUTHELIA_COMMIT=.*/AUTHELIA_COMMIT=$SHA/" upstream.env
+          tests/prepare.sh
+          python3 convert/convert.py work/authelia work/artisanhub-ui 2>&1 | tee /tmp/convert.log
+          git checkout upstream.env
+
+      - name: Open the pull request
+        if: steps.latest.outputs.new != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.latest.outputs.new }}
+          SHA: ${{ steps.latest.outputs.sha }}
+          IMAGE: ${{ steps.latest.outputs.image }}
+          OUTCOME: ${{ steps.convert.outcome }}
+        run: |
+          branch="upstream/$TAG"
+          if git ls-remote --exit-code origin "refs/heads/$branch" >/dev/null; then echo "already proposed"; exit 0; fi
+          sed -i "s/^AUTHELIA_VERSION=.*/AUTHELIA_VERSION=$TAG/; s/^AUTHELIA_COMMIT=.*/AUTHELIA_COMMIT=$SHA/; s#^AUTHELIA_IMAGE=.*#AUTHELIA_IMAGE=$IMAGE#" upstream.env
+          git config user.name "James Norman"
+          git config user.email "3048818+norjms@users.noreply.github.com"
+          git checkout -b "$branch"
+          git commit -qam "Authelia $TAG"
+          git push -q origin "$branch"
+          if [ "$OUTCOME" = success ]; then
+            body="Authelia $TAG ($SHA) is released. convert/convert.py applies to it cleanly. Build it, render its pages with tests/screens.sh, then merge."
+          else
+            body="Authelia $TAG ($SHA) is released, and convert/convert.py does not apply to it yet:"$'\n\n```\n'"$(tail -20 /tmp/convert.log)"$'\n```\n\n'"Fix the named step on this branch, then build and check it."
+          fi
+          gh pr create --head "$branch" --title "Authelia $TAG" --body "$body" \
+            || gh issue create --title "Authelia $TAG is out" --body "$body (branch $branch)"
