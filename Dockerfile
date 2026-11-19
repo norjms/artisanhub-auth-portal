@@ -1,4 +1,4 @@
-# artisanhub-auth-portal: an Authelia release with its web portal converted for ArtisanHub by convert/convert.py.
+# artisanhub-auth-portal: an Authelia release with its web portal converted for OpenPrintHQ by convert/convert.py.
 #
 # The releases come from upstream.env (passed as build arguments by the maintainer's build script): each tag is
 # fetched and must be the commit named there, so a moved tag fails the build instead of changing what is built.
@@ -8,13 +8,13 @@
 ARG AUTHELIA_IMAGE
 
 FROM node:22-alpine AS ui
-ARG ARTISANHUB_UI_REPO
-ARG ARTISANHUB_UI_VERSION
-ARG ARTISANHUB_UI_COMMIT
+ARG OPENPRINTHQ_UI_REPO
+ARG OPENPRINTHQ_UI_VERSION
+ARG OPENPRINTHQ_UI_COMMIT
 RUN apk add --no-cache git
-RUN test -n "$ARTISANHUB_UI_VERSION" && test -n "$ARTISANHUB_UI_COMMIT" \
- && git clone -q --depth 1 --branch "$ARTISANHUB_UI_VERSION" "$ARTISANHUB_UI_REPO" /ui \
- && test "$(git -C /ui rev-parse HEAD)" = "$ARTISANHUB_UI_COMMIT" \
+RUN test -n "$OPENPRINTHQ_UI_VERSION" && test -n "$OPENPRINTHQ_UI_COMMIT" \
+ && git clone -q --depth 1 --branch "$OPENPRINTHQ_UI_VERSION" "$OPENPRINTHQ_UI_REPO" /ui \
+ && test "$(git -C /ui rev-parse HEAD)" = "$OPENPRINTHQ_UI_COMMIT" \
  && cd /ui && npm ci --omit=dev --omit=peer --ignore-scripts --no-audit --no-fund
 
 FROM python:3.12-alpine AS convert
@@ -62,7 +62,7 @@ WORKDIR /src
 RUN go mod download
 RUN x=github.com/authelia/authelia/v4/internal/utils \
  && go build -buildmode=pie -trimpath -o /authelia \
-      -ldflags "-linkmode=external -s -w -X '$x.BuildTag=$AUTHELIA_VERSION' -X '$x.BuildCommit=$AUTHELIA_COMMIT' -X '$x.BuildBranch=master' -X '$x.BuildState=tagged clean' -X '$x.BuildExtra=artisanhub'" \
+      -ldflags "-linkmode=external -s -w -X '$x.BuildTag=$AUTHELIA_VERSION' -X '$x.BuildCommit=$AUTHELIA_COMMIT' -X '$x.BuildBranch=master' -X '$x.BuildState=tagged clean' -X '$x.BuildExtra=openprinthq'" \
       ./cmd/authelia/ \
  && /authelia --version
 
@@ -71,9 +71,9 @@ ARG AUTHELIA_VERSION
 COPY --from=binary /authelia /app/authelia
 # The rebuilt binary must run in the official image as it is.
 RUN ["/app/authelia", "--version"]
-COPY LICENSE NOTICE /app/artisanhub-auth-portal/
-COPY --from=convert /src/web/src/ahi/fonts/*-LICENSE.txt /app/artisanhub-auth-portal/fonts/
-LABEL org.opencontainers.image.title="artisanhub-auth-portal" \
-      org.opencontainers.image.description="ArtisanHub's sign-in: Authelia ${AUTHELIA_VERSION} with its portal in the ArtisanHub look" \
+COPY LICENSE NOTICE /app/openprinthq-auth-portal/
+COPY --from=convert /src/web/src/ahi/fonts/*-LICENSE.txt /app/openprinthq-auth-portal/fonts/
+LABEL org.opencontainers.image.title="openprinthq-auth-portal" \
+      org.opencontainers.image.description="OpenPrintHQ's sign-in: Authelia ${AUTHELIA_VERSION} with its portal in the OpenPrintHQ look" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.version="${AUTHELIA_VERSION}"

@@ -67,13 +67,14 @@ def tracked(root: Path) -> list[str]:
 
 
 def self_test() -> None:
-    allow = [re.compile(r"artisanhub-manager"), re.compile(r"artisan_hub_[a-z_]+")]
+    stem = "artisan"  # written in parts, so this file does not carry the old name itself
+    allow = [re.compile(stem + "hub-manager"), re.compile(stem + r"_hub_[a-z_]+")]
     old = "Artisan" + "Hub"
     assert left(f"Welcome to {old}", allow)
     assert left("the " + "artisan" + "-hub image", allow)
     assert left("Artisan" + " Hub", allow)
-    assert not left("volume artisanhub-manager and option artisan_hub_api_key", allow)
-    assert left(f"artisanhub-manager for {old}", allow)
+    assert not left(f"volume {stem}hub-manager and option {stem}_hub_api_key", allow)
+    assert left(f"{stem}hub-manager for {old}", allow)
     assert not left("Artisan Prints, the shop", allow)
     print("name-check: self-test passed")
 
@@ -97,8 +98,10 @@ def main(argv: list[str]) -> int:
         return 0
     for name, n in hits:
         print(f"{name}:{n}" if n else f"{name}: file name")
-    print(f"name-check: the old name is on {len(hits)} lines in {len(files)} files; rename them, or list a "
-          f"name that must stay in {CONFIG}")
+    print(
+        f"name-check: the old name is on {len(hits)} lines in {len(files)} files; rename them, or list a "
+        f"name that must stay in {CONFIG}"
+    )
     return 1
 
 

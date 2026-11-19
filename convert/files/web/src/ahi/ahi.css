@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  *
- * The ArtisanHub look for Authelia's portal. theme.css and fonts.css are written by convert/convert.py from the
- * pinned artisanhub-ui release; this file maps those values onto the portal's own theme variables (every one of
- * Authelia's themes gets the same values, so "auto", "light" and "dark" all show ArtisanHub's glass) and styles
+ * The OpenPrintHQ look for Authelia's portal. theme.css and fonts.css are written by convert/convert.py from the
+ * pinned openprinthq-ui release; this file maps those values onto the portal's own theme variables (every one of
+ * Authelia's themes gets the same values, so "auto", "light" and "dark" all show OpenPrintHQ's glass) and styles
  * the frame. Selectors that reach into upstream markup are listed in convert.py's HOOKS, which fails the build
  * when one of them is gone.
  */
@@ -197,7 +197,7 @@ a.ahi-btn--secondary {
     margin-top: 0;
 }
 
-/* Fields: the label above the box, as on every ArtisanHub form */
+/* Fields: the label above the box, as on every OpenPrintHQ form */
 [data-slot="floating-input"] {
     height: 38px;
     padding: 0 12px;

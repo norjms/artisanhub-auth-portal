@@ -22,7 +22,7 @@ export interface Props {
     maxWidth?: false | string;
 }
 
-// Authelia's login layout, in the ArtisanHub frame (convert/convert.py replaces the upstream file with this one
+// Authelia's login layout, in the OpenPrintHQ frame (convert/convert.py replaces the upstream file with this one
 // only while the upstream Props are exactly the ones above).
 const LoginLayout = function (props: Props) {
     const { locale, setLocale } = useLanguageContext();

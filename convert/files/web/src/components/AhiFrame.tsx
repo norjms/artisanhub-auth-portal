@@ -31,11 +31,11 @@ export interface Props {
     onLocaleChange?: (_locale: string) => void;
 }
 
-// The ArtisanHub sign-in frame: the mark and name above one glass card, and the footer below it, centred on
+// The OpenPrintHQ sign-in frame: the mark and name above one glass card, and the footer below it, centred on
 // the page. Every portal page renders inside it.
 const AhiFrame = function (props: Props) {
     useEffect(() => {
-        document.title = props.title ? `${props.title} - ArtisanHub` : "ArtisanHub";
+        document.title = props.title ? `${props.title} - OpenPrintHQ` : "OpenPrintHQ";
     }, [props.title]);
 
     const width = props.maxWidth === false ? "1152px" : (widths[props.maxWidth ?? "xs"] ?? widths.xs);
