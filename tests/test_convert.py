@@ -1,7 +1,7 @@
 """The conversion applies to the pinned Authelia release, and stops, naming what is missing, when anything it
 relies on is gone.
 
-    AUTHELIA_SRC=<Authelia source at upstream.env's release> ARTISANHUB_UI=<artisanhub-ui with its dependencies> \
+    AUTHELIA_SRC=<Authelia source at upstream.env's release> OPENPRINTHQ_UI=<openprinthq-ui with its dependencies> \
         python3 -m unittest discover -s tests
 
 tests/prepare.sh fetches both as the Dockerfile does.
@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "convert"))
 import convert  # noqa: E402
 
 SRC = Path(os.environ.get("AUTHELIA_SRC", ROOT / "work/authelia"))
-UI = Path(os.environ.get("ARTISANHUB_UI", ROOT / "work/artisanhub-ui"))
+UI = Path(os.environ.get("OPENPRINTHQ_UI", ROOT / "work/openprinthq-ui"))
 
 
 @unittest.skipUnless((SRC / "web/src/App.tsx").is_file(), "no Authelia source; run tests/prepare.sh")
@@ -118,7 +118,7 @@ class Convert(unittest.TestCase):
         (self.tree / "web/src/components/AhiMark.tsx").write_text("export default 1;\n")
         self.assert_fails("AhiMark.tsx", "exists upstream")
 
-    def test_the_theme_must_come_from_artisanhub_ui(self) -> None:
+    def test_the_theme_must_come_from_openprinthq_ui(self) -> None:
         with self.assertRaises(convert.ConvertError) as caught:
             convert.convert(self.tree, self.tmp / "nothing")
         self.assertIn("theme.css", str(caught.exception))

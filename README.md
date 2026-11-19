@@ -10,7 +10,7 @@ and the build applies them to the release named in `upstream.env`:
 
 | File | What it is |
 |---|---|
-| `upstream.env` | The Authelia release built (its tag, the commit the tag must point at, and its official image), and the [artisanhub-ui](https://github.com/norjms/artisanhub-ui) release that supplies the colours, sizes and fonts. |
+| `upstream.env` | The Authelia release built (its tag, the commit the tag must point at, and its official image), and the [openprinthq-ui](https://github.com/norjms/artisanhub-ui) release that supplies the colours, sizes and fonts. |
 | `convert/convert.py` | The conversion, as a script. Each edit names the exact text it changes, and every part of Authelia's markup the look relies on is checked; the build stops, naming what is missing, if a release no longer has it. |
 | `convert/files/` | Files added to the portal: the stylesheet, the OpenPrintHQ frame (mark, card, footer), and the "no access" page. |
 | `Dockerfile` | Fetches both releases, checks their commits, runs the conversion, builds the portal and Authelia's binary from the same source, and puts the binary into the official image of that release. |
@@ -41,7 +41,7 @@ Caddy's `forward_auth`:
 ```
 @denied status 403
 handle_response @denied {
-	redir * /authelia/denied?app=ArtisanHub%20Farm 302
+	redir * /authelia/denied?app=OpenPrintHQ%20Farm 302
 }
 ```
 
@@ -58,5 +58,5 @@ RESET_URL=https://hub.ahi.test/account/password tests/screens.sh <image> <folder
 ## Licence
 
 Authelia is licensed under the Apache License, Version 2.0, and so is this repository: see `LICENSE` and
-`NOTICE`, which says what was changed. The fonts come from artisanhub-ui's releases under the SIL Open Font
+`NOTICE`, which says what was changed. The fonts come from openprinthq-ui's releases under the SIL Open Font
 License.

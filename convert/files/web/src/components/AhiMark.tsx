@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// The ArtisanHub mark: the cube in an accent tile, and the name beside it.
+// The OpenPrintHQ mark (openprinthq-ui's "mark" icon: a hexagon holding stacked print layers) in an accent
+// tile, and the name beside it.
 const AhiMark = function () {
     return (
         <div className="ahi-mark">
@@ -17,11 +18,11 @@ const AhiMark = function () {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                 >
-                    <path d="M12 2 3 7v10l9 5 9-5V7l-9-5z" />
-                    <path d="M3 7l9 5 9-5M12 12v10" />
+                    <path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z" />
+                    <path d="M8 16h8M9.5 12.8h5M11 9.6h2" />
                 </svg>
             </span>
-            <span className="ahi-name">ArtisanHub</span>
+            <span className="ahi-name">OpenPrintHQ</span>
         </div>
     );
 };

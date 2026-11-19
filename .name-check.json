@@ -1,5 +1,5 @@
 {
-  "mode": "report",
+  "mode": "enforce",
   "allow": [
     "artisanhub-manager",
     "artisanhub\\.managed",
@@ -8,7 +8,8 @@
     "artisanhub-connector(\\.php)?"
   ],
   "allow_until_renamed": [
-    "(github\\.com/|ghcr\\.io/)?norjms/artisan-?hub[A-Za-z0-9_.-]*"
+    "(github\\.com/|ghcr\\.io/)?norjms/artisan-?hub[A-Za-z0-9_.-]*",
+    "\\bartisanhub-auth-portal\\b"
   ],
   "skip": [
     "CHANGELOG*",

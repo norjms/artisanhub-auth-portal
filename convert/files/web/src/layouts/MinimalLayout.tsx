@@ -15,7 +15,7 @@ export interface Props {
     userInfo?: UserInfo;
 }
 
-// Authelia's minimal layout, in the ArtisanHub frame (convert/convert.py replaces the upstream file with this
+// Authelia's minimal layout, in the OpenPrintHQ frame (convert/convert.py replaces the upstream file with this
 // one only while the upstream Props are exactly the ones above).
 const MinimalLayout = function (props: Props) {
     return (

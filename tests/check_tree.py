@@ -5,7 +5,8 @@
 
 Every tracked file must be on the list below; anything else (an editor's or an assistant's settings, a stray
 note) fails. Every commit in the range must be authored and committed by the maintainer's public address and
-carry no trailer lines. No file may contain an em dash.
+carry no trailer lines; a pull request merged on GitHub is committed by GitHub itself, so for those the author's
+address is what counts. No file may contain an em dash.
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ ALLOWED = (
     ".name-check.json", "tools/name_check.py",
 )
 IDENTITY = "James Norman <3048818+norjms@users.noreply.github.com>"
+EMAIL = "<3048818+norjms@users.noreply.github.com>"
+GITHUB_MERGE = "GitHub <noreply@github.com>"
 
 
 def git(*args: str) -> str:
@@ -42,7 +45,8 @@ def main(argv: list[str]) -> int:
     span = argv[1] if len(argv) > 1 else "HEAD"
     for line in git("log", "--format=%H%x09%an <%ae>%x09%cn <%ce>", span).splitlines():
         sha, author, committer = line.split("\t")
-        if author != IDENTITY or committer != IDENTITY:
+        merged_on_github = committer == GITHUB_MERGE and author.endswith(" " + EMAIL)
+        if not merged_on_github and (author != IDENTITY or committer != IDENTITY):
             problems.append(f"{sha[:7]}: authored or committed as {author} / {committer}")
         message = git("log", "-1", "--format=%B", sha)
         trailers = subprocess.run(["git", "interpret-trailers", "--parse"], input=message, capture_output=True,

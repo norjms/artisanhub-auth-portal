@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""Turn an Authelia release into ArtisanHub's sign-in: Authelia with its web portal in the ArtisanHub look.
+"""Turn an Authelia release into OpenPrintHQ's sign-in: Authelia with its web portal in the OpenPrintHQ look.
 
-    python3 convert/convert.py <Authelia source tree> <artisanhub-ui tree, with its dependencies installed>
+    python3 convert/convert.py <Authelia source tree> <openprinthq-ui tree, with its dependencies installed>
 
 Only the web portal (web/) changes. Authelia's server, its API and its configuration are untouched, so the
 image behaves exactly as the release it is built from. The same steps run for every release:
 
-1. Look. The values come from the pinned artisanhub-ui release (dist/theme.css) and its bundled fonts
+1. Look. The values come from the pinned openprinthq-ui release (dist/theme.css) and its bundled fonts
    (Manrope, Sora and JetBrains Mono, all under the SIL Open Font License), copied into web/src/ahi/. Every one
    of Authelia's themes is mapped onto them (web/src/ahi/ahi.css).
-2. Frame. Authelia's two page layouts are replaced by the ArtisanHub frame: the ArtisanHub mark and name above
+2. Frame. Authelia's two page layouts are replaced by the OpenPrintHQ frame: the OpenPrintHQ mark and name above
    one glass card, and a footer under it naming the installation and Authelia. The replacement only happens
    while the upstream layouts take exactly the props and use exactly the parts they had when this script was
    written; anything new stops the conversion.
 3. Copy. The sign-in form: labels without asterisks, "Keep me signed in" as a toggle, and, with Authelia's own
    password reset off, a line saying who gives a new password link. With a reset address configured
    (authentication_backend.password_reset.custom_url), Authelia's own link to it stays, worded "Forgot your
-   password?", and opens the address in the same tab (ArtisanHub's hub page, /account/password, links back to
+   password?", and opens the address in the same tab (OpenPrintHQ's hub page, /account/password, links back to
    the sign-in).
 4. No access. A page at /denied, where the proxy sends someone signed in whom Authelia refused (403).
 
@@ -38,7 +38,7 @@ FILES = HERE / "files"
 WEB = "web"
 SRC = "web/src"
 
-# Fonts from artisanhub-ui's pinned @fontsource packages: (package, file prefix, weights). Latin and Latin
+# Fonts from openprinthq-ui's pinned @fontsource packages: (package, file prefix, weights). Latin and Latin
 # Extended are bundled; other scripts fall back to the system font.
 FONTS = (("manrope", "manrope", (400, 500, 600, 700)), ("sora", "sora", (500, 600)),
          ("jetbrains-mono", "jetbrains-mono", (400,)))
@@ -139,7 +139,7 @@ WORDS = {
 }
 # Words the added parts use, in English; other languages fall back to these.
 NEW_WORDS = (
-    "Use your ArtisanHub sign-in.",
+    "Use your OpenPrintHQ sign-in.",
     "Forgot your password? Ask the hub's owner for a new link.",
     "Signing in to {{name}}.",
     "Protected by",
@@ -190,7 +190,7 @@ def check_hooks(root: Path) -> None:
         text = read(root, f"{SRC}/{rel}")
         for needle in needles:
             if needle not in text:
-                fail(f"{SRC}/{rel}: no longer has {needle!r}, which the ArtisanHub look relies on")
+                fail(f"{SRC}/{rel}: no longer has {needle!r}, which the OpenPrintHQ look relies on")
 
 
 def replace_layouts(root: Path) -> None:
@@ -220,16 +220,16 @@ def add_files(root: Path) -> None:
 def look(root: Path, ui: Path) -> None:
     theme = ui / "dist/theme.css"
     if not theme.is_file():
-        fail(f"{theme}: missing; is this an artisanhub-ui tree?")
+        fail(f"{theme}: missing; is this an openprinthq-ui tree?")
     out = root / SRC / "ahi"
     shutil.copy(theme, out / "theme.css")
     fonts = out / "fonts"
     fonts.mkdir(exist_ok=True)
-    faces = ["/* Written by convert/convert.py from artisanhub-ui's @fontsource packages (SIL Open Font License). */"]
+    faces = ["/* Written by convert/convert.py from openprinthq-ui's @fontsource packages (SIL Open Font License). */"]
     for package, prefix, weights in FONTS:
         base = ui / "node_modules/@fontsource" / package
         if not (base / "LICENSE").is_file():
-            fail(f"{base}: missing; install artisanhub-ui's dependencies first")
+            fail(f"{base}: missing; install openprinthq-ui's dependencies first")
         shutil.copy(base / "LICENSE", fonts / f"{prefix}-LICENSE.txt")
         for weight in weights:
             for subset in SUBSETS:
@@ -250,8 +250,8 @@ def look(root: Path, ui: Path) -> None:
     sub(root, f"{SRC}/index.css", r'font-family:\s*"Roboto",\s*"Helvetica",\s*"Arial",\s*sans-serif;',
         "font-family: var(--ah-font-sans);")
     edit(root, f"{WEB}/index.html", '<meta name="theme-color" content="#000000" />',
-         '<meta name="theme-color" content="#172028" />\n        <meta name="application-name" content="ArtisanHub sign-in" />')
-    edit(root, f"{WEB}/index.html", "<title></title>", "<title>ArtisanHub</title>")
+         '<meta name="theme-color" content="#172028" />\n        <meta name="application-name" content="OpenPrintHQ sign-in" />')
+    edit(root, f"{WEB}/index.html", "<title></title>", "<title>OpenPrintHQ</title>")
     # The show-password button sits on the field, which is now under its label rather than around it.
     edit(root, f"{SRC}/components/UI/PasswordVisibilityToggle.tsx", "absolute right-2 top-1/2 -translate-y-1/2 p-1",
          "absolute right-2 bottom-0 flex h-[38px] items-center p-1")
@@ -261,12 +261,12 @@ def sign_in_form(root: Path) -> None:
     rel = f"{SRC}/views/LoginPortal/FirstFactor/FirstFactorForm.tsx"
     edit(root, rel, '<LoginLayout id="first-factor-stage" title={translate("Sign in")}>',
          '<LoginLayout\n            id="first-factor-stage"\n            title={translate("Sign in")}\n'
-         '            subtitle={translate("Use your ArtisanHub sign-in.")}\n        >')
+         '            subtitle={translate("Use your OpenPrintHQ sign-in.")}\n        >')
     edit(root, rel, 'label={`${translate("Username")} *`}', 'label={translate("Username")}')
     edit(root, rel, 'label={`${translate("Password")} *`}', 'label={translate("Password")}')
     edit(root, rel, 'import { Checkbox } from "@components/UI/Checkbox";', 'import { Switch } from "@components/UI/Switch";')
     sub(root, rel, r'<Checkbox(\s+id="remember-checkbox")', r"<Switch\1")
-    # Authelia's own reset is off in an ArtisanHub installation unless a reset address is set: say who helps.
+    # Authelia's own reset is off in an OpenPrintHQ installation unless a reset address is set: say who helps.
     help_line = ('(\n<p id="ahi-password-help" className="ahi-help">\n'
                  '{translate("Forgot your password? Ask the hub\'s owner for a new link.")}\n</p>\n)')
     sub(root, rel, r'(\{translate\("Reset password\?"\)\}\s*</button>\s*</div>\s*\) : )null(\})',
@@ -329,7 +329,7 @@ def convert(root: Path, ui: Path) -> None:
 
 def main(argv: list[str]) -> None:
     if len(argv) != 3:
-        raise SystemExit("usage: convert.py <authelia source> <artisanhub-ui tree>")
+        raise SystemExit("usage: convert.py <authelia source> <openprinthq-ui tree>")
     convert(Path(argv[1]), Path(argv[2]))
     print("convert: done")
 

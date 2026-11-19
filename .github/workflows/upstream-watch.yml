@@ -50,7 +50,7 @@ jobs:
         run: |
           sed -i "s/^AUTHELIA_VERSION=.*/AUTHELIA_VERSION=$TAG/; s/^AUTHELIA_COMMIT=.*/AUTHELIA_COMMIT=$SHA/" upstream.env
           tests/prepare.sh
-          python3 convert/convert.py work/authelia work/artisanhub-ui 2>&1 | tee /tmp/convert.log
+          python3 convert/convert.py work/authelia work/openprinthq-ui 2>&1 | tee /tmp/convert.log
           git checkout upstream.env
 
       - name: Open the pull request

@@ -5,7 +5,7 @@
 #   tests/screens.sh <image> <output folder>
 #   RESET_URL=https://hub.ahi.test/account/password tests/screens.sh <image> <output folder>
 #
-# With RESET_URL, Authelia's password reset points at that address (password_reset.custom_url), as an ArtisanHub
+# With RESET_URL, Authelia's password reset points at that address (password_reset.custom_url), as an OpenPrintHQ
 # installation sets it: the sign-in page must show "Forgot your password?" opening it in the same tab. Without it,
 # the reset is off and the page must show the line saying to ask the hub's owner.
 #

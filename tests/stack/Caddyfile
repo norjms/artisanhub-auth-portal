@@ -16,7 +16,7 @@ hub.ahi.test {
 			copy_headers Remote-User
 			@denied status 403
 			handle_response @denied {
-				redir * /authelia/denied?app=ArtisanHub%20Farm 302
+				redir * /authelia/denied?app=OpenPrintHQ%20Farm 302
 			}
 		}
 		respond "signed in"
