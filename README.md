@@ -1,7 +1,7 @@
 # artisanhub-auth-portal
 
-ArtisanHub's sign-in: [Authelia](https://github.com/authelia/authelia) with its web portal converted to the
-ArtisanHub look. An ArtisanHub installation serves it at `/authelia` of the hub's name. Sign in, second factor,
+OpenPrintHQ's sign-in: [Authelia](https://github.com/authelia/authelia) with its web portal converted to the
+OpenPrintHQ look. An OpenPrintHQ installation serves it at `/authelia` of the hub's name. Sign in, second factor,
 consent, signed in, sign out and settings all keep Authelia's behaviour; only how they look and a few English words
 change, and a "no access" page is added for people who are signed in but may not open something.
 
@@ -12,7 +12,7 @@ and the build applies them to the release named in `upstream.env`:
 |---|---|
 | `upstream.env` | The Authelia release built (its tag, the commit the tag must point at, and its official image), and the [artisanhub-ui](https://github.com/norjms/artisanhub-ui) release that supplies the colours, sizes and fonts. |
 | `convert/convert.py` | The conversion, as a script. Each edit names the exact text it changes, and every part of Authelia's markup the look relies on is checked; the build stops, naming what is missing, if a release no longer has it. |
-| `convert/files/` | Files added to the portal: the stylesheet, the ArtisanHub frame (mark, card, footer), and the "no access" page. |
+| `convert/files/` | Files added to the portal: the stylesheet, the OpenPrintHQ frame (mark, card, footer), and the "no access" page. |
 | `Dockerfile` | Fetches both releases, checks their commits, runs the conversion, builds the portal and Authelia's binary from the same source, and puts the binary into the official image of that release. |
 | `tests/` | The conversion's tests, a check of what this repository may contain, and `screens.sh`, which renders every page of a built image at 1920 x 1080 and 1280 x 860 and checks it. |
 | `.github/workflows/upstream-watch.yml` | Checks daily for a new Authelia release and opens a pull request moving `upstream.env` to it, saying whether the conversion still applies. |
@@ -22,7 +22,7 @@ and the build applies them to the release named in `upstream.env`:
 1. A new release appears; the watch opens a pull request `Authelia vX.Y.Z`.
 2. If it says the conversion failed, fix the named step in `convert/convert.py` on that branch.
 3. Build the image for amd64 and arm64, run `tests/screens.sh <image> <folder>` and look at the pages, then merge.
-   ArtisanHub's installer then pins the new image by digest.
+   OpenPrintHQ's installer then pins the new image by digest.
 
 Only published releases are taken; pre-releases, drafts, branches and nightly builds never are.
 
