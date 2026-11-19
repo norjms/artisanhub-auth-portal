@@ -1,4 +1,4 @@
-# artisanhub-auth-portal: an Authelia release with its web portal converted for OpenPrintHQ by convert/convert.py.
+# openprinthq-auth-portal: an Authelia release with its web portal converted for OpenPrintHQ by convert/convert.py.
 #
 # The releases come from upstream.env (passed as build arguments by the maintainer's build script): each tag is
 # fetched and must be the commit named there, so a moved tag fails the build instead of changing what is built.
