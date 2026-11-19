@@ -18,6 +18,7 @@ ALLOWED = (
     ".dockerignore", ".gitignore", "Dockerfile", "LICENSE", "NOTICE", "README.md", "upstream.env",
     "convert/convert.py", "convert/files/web/src/*", "convert/files/web/src/*/*", "convert/files/web/src/*/*/*",
     "tests/*.py", "tests/*.sh", "tests/*.mjs", "tests/stack/*", ".github/workflows/*.yml",
+    ".name-check.json", "tools/name_check.py",
 )
 IDENTITY = "James Norman <3048818+norjms@users.noreply.github.com>"
 
