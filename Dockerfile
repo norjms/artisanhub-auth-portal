@@ -6,8 +6,10 @@
 # the same source with the converted portal embedded in it.
 
 ARG AUTHELIA_IMAGE
+# The portal stages (ui, convert, web) make files that do not depend on the CPU, so they run on the build machine
+# itself; under emulation the portal's Vite build can stall. The Go binary and the final image are per platform.
 
-FROM node:22-alpine AS ui
+FROM --platform=$BUILDPLATFORM node:22-alpine AS ui
 ARG OPENPRINTHQ_UI_REPO
 ARG OPENPRINTHQ_UI_VERSION
 ARG OPENPRINTHQ_UI_COMMIT
@@ -17,7 +19,7 @@ RUN test -n "$OPENPRINTHQ_UI_VERSION" && test -n "$OPENPRINTHQ_UI_COMMIT" \
  && test "$(git -C /ui rev-parse HEAD)" = "$OPENPRINTHQ_UI_COMMIT" \
  && cd /ui && npm ci --omit=dev --omit=peer --ignore-scripts --no-audit --no-fund
 
-FROM python:3.12-alpine AS convert
+FROM --platform=$BUILDPLATFORM python:3.12-alpine AS convert
 ARG AUTHELIA_REPO
 ARG AUTHELIA_VERSION
 ARG AUTHELIA_COMMIT
@@ -30,7 +32,7 @@ COPY --from=ui /ui /ui
 COPY convert /convert
 RUN python3 /convert/convert.py /src /ui
 
-FROM node:22-alpine AS web
+FROM --platform=$BUILDPLATFORM node:22-alpine AS web
 COPY --from=convert /src /src
 WORKDIR /src/web
 RUN npm install -g --no-audit --no-fund pnpm@12 \
